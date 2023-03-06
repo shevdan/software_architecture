@@ -20,7 +20,6 @@ def home():
 
 @app.post("/")
 def post_msg(msg: Message):
-    # uuid, message = msg.message
     print(f"Obtained {msg.uuid}: {msg.message}")
     MSG_HASH_MAP[msg.uuid] = msg.message
 

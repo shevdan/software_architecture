@@ -22,6 +22,7 @@ def home():
 @app.post("/")
 def post_msg(msg: User):
     message = msg.message
+    print(f"Obtained: {msg.message}")
     logging_url = "http://127.0.0.1:8082"
     messaging_url = "http://127.0.0.1:8083/"
     data = {
