@@ -19,4 +19,5 @@ def post_msg(msg: Message):
 
 
 if __name__ == "__main__":
+    print("Running message service")
     uvicorn.run("message_service:app", port=8083, reload=False)

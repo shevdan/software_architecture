@@ -30,12 +30,11 @@ def post_msg(msg: User):
         }
     try:
         r = requests.post(url = logging_url, json = data)
-        print(r.status_code)
         requests.post(url = messaging_url, json = data)
-        print(r.status_code)
     except requests.exceptions.ConnectionError:
         print("Logging and/or messaging service unavailable")
 
 
 if __name__ == "__main__":
+    print("Running facade service")
     uvicorn.run("facade_service:app", port=8080, reload=False)

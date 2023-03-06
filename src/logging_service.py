@@ -26,4 +26,5 @@ def post_msg(msg: Message):
 
 
 if __name__ == "__main__":
+    print("Running logging service")
     uvicorn.run("logging_service:app", port=8082, reload=False)
