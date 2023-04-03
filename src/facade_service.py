@@ -32,8 +32,9 @@ def home():
     return f"{logging_response.text}: {messaging_response.text}"
 
 @app.post("/")
-async def post_msg(msg: User):
-    message = msg.message
+async def post_msg(msg: Request):
+    data = await msg.json()
+    message = data.get("message")
     print(f"Facade service. Posting message: {message}")
     logging_url = choice(CONF.logging_url)
     messaging_url = CONF.message_url
