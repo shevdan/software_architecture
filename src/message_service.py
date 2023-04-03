@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
+import argparse
 
 class Message(BaseModel):
     message: str
@@ -10,6 +11,7 @@ app = FastAPI()
 
 @app.get('/')
 def home():
+    print("Messages service. Getting messages.")
     return "Not implemented yet."
 
 
@@ -19,5 +21,13 @@ def post_msg(msg: Message):
 
 
 if __name__ == "__main__":
-    print("Running message service")
-    uvicorn.run("message_service:app", port=8083, reload=False)
+    parser = argparse.ArgumentParser(
+                    prog = 'message_service.py',
+                    description = 'Allows user to start message service')
+    parser.add_argument('host', type=str, help="host necessary") 
+    parser.add_argument('port', type=int, help="port necessary")           # positional argument
+    args = parser.parse_args()
+    
+
+    print("Messages service. Running message service")
+    uvicorn.run("message_service:app", host = args.host, port=args.port, reload=False)

@@ -1,0 +1,12 @@
+facade:
+    host: "127.0.0.1"
+    port: 8081
+
+message:
+    host: "127.0.0.1"
+    port: 8082
+
+logging:
+    - { host: "127.0.0.1", port: 8083 }
+    - { host: "127.0.0.1", port: 8084 }
+    - { host: "127.0.0.1", port: 8085 }

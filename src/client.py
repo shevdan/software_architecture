@@ -1,5 +1,8 @@
 import requests
 import argparse
+from config import Config
+import json
+CONF = Config.urls_from_conf()
 
 
 if __name__ == "__main__":
@@ -13,12 +16,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.method not in ["post", "get"]:
         raise ValueError("Wrong method type")
-    facade_url = "http://127.0.0.1:8080/"
     if args.method == "post":
         data = {
             "message": args.message
         }
-        requests.post(url = facade_url, json = data)
+        requests.post(url = CONF.facade_url, data = json.dumps(data))
     else:
-        r = requests.get(facade_url)
+        r = requests.get(CONF.facade_url)
         print(r.json())
