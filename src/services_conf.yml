@@ -3,8 +3,8 @@ facade:
     port: 8081
 
 message:
-    host: "127.0.0.1"
-    port: 8082
+    - { host: "127.0.0.1", port: 8086 }
+    - { host: "127.0.0.1", port: 8087 }
 
 logging:
     - { host: "127.0.0.1", port: 8083 }

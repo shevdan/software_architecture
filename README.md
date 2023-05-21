@@ -11,7 +11,9 @@ to instantiate services you should run
 
 ```python3 start_services.py --facade```
  
-```python3 start_services.py --message```
+```python3 start_services.py --message -n 0```
+
+```python3 start_services.py --message -n 1```
 
 Then instantiate 3 hazelcast nodes by typing in 3 distinct terminal windows:
 

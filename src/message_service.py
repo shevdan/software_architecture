@@ -1,7 +1,11 @@
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
+from constants import KAFKA_MSG_TOPIC, KAFKA_URL
 import argparse
+
+import threading
+from kafka import KafkaConsumer
 
 class Message(BaseModel):
     message: str
@@ -9,10 +13,29 @@ class Message(BaseModel):
 
 app = FastAPI()
 
+MSG_STORAGE = []
+
+def msg_loop():
+    msg_consumer = KafkaConsumer(KAFKA_MSG_TOPIC,
+                                 group_id='my-group0',
+                                 bootstrap_servers=KAFKA_URL,
+                                 auto_offset_reset='earliest',
+                                 enable_auto_commit=True, 
+                                 api_version=(0,11,5)
+                                 )
+    for msg in msg_consumer:
+        m = msg.value.decode()
+        print(f"MESSAGE: Got message: {m}")
+        MSG_STORAGE.append(m)
+
+
+t = threading.Thread(target=msg_loop)
+t.start()
+
 @app.get('/')
 def home():
-    print("Messages service. Getting messages.")
-    return "Not implemented yet."
+    print(f"Messages service. Getting messages. {MSG_STORAGE}")
+    return MSG_STORAGE
 
 
 @app.post("/")

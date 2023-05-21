@@ -7,6 +7,8 @@ from config import Config
 from random import choice
 import argparse
 import json
+from kafka import KafkaProducer
+from constants import KAFKA_MSG_TOPIC, KAFKA_URL
 
 class User(BaseModel):
     message: str
@@ -14,6 +16,7 @@ class User(BaseModel):
 app = FastAPI()
 
 CONF = Config.urls_from_conf()
+msg_producer = KafkaProducer(bootstrap_servers=KAFKA_URL, api_version=(0,11,5))
 
 
 @app.get('/')
@@ -21,7 +24,7 @@ def home():
     print("Facade message. Getting messages")
     try:
         logging_response = requests.get(choice(CONF.logging_url))
-        messaging_response = requests.get(CONF.message_url)
+        messaging_response = requests.get(choice(CONF.message_url))
     except Exception as e:
         return f"Error connecting to logging and/or message services. Error: {e}"
     if logging_response.status_code != 200:
@@ -37,14 +40,16 @@ async def post_msg(msg: Request):
     message = data.get("message")
     print(f"Facade service. Posting message: {message}")
     logging_url = choice(CONF.logging_url)
-    messaging_url = CONF.message_url
     data = {
         "message":  message,
         "uuid": str(uuid.uuid4())
         }
     try:
+        h = msg_producer.send(KAFKA_MSG_TOPIC, message.encode('utf-8'))
+        metadata = h.get(timeout=10)
+        print(f"Message metadata: {metadata.topic}; {metadata.partition}; {metadata.offset}")
+        msg_producer.flush()
         r = requests.post(url = logging_url, data = json.dumps(data))
-        requests.post(url = messaging_url, data = json.dumps(data))
     except requests.exceptions.ConnectionError:
         print("Logging and/or messaging service unavailable")
 
