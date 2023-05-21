@@ -9,6 +9,14 @@ to instantiate services you should run
 
 ```cd src```
 
+Make sure you have Kafka running
+
+```zookeeper-server-start /usr/local/etc/kafka/zookeeper.properties```
+
+```kafka-server-start /usr/local/etc/kafka/server.properties```
+
+After this you can start services
+
 ```python3 start_services.py --facade```
  
 ```python3 start_services.py --message -n 0```
