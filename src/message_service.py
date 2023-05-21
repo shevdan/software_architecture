@@ -15,23 +15,6 @@ app = FastAPI()
 
 MSG_STORAGE = []
 
-def msg_loop():
-    msg_consumer = KafkaConsumer(KAFKA_MSG_TOPIC,
-                                 group_id='my-group0',
-                                 bootstrap_servers=KAFKA_URL,
-                                 auto_offset_reset='earliest',
-                                 enable_auto_commit=True, 
-                                 api_version=(0,11,5)
-                                 )
-    for msg in msg_consumer:
-        m = msg.value.decode()
-        print(f"MESSAGE: Got message: {m}")
-        MSG_STORAGE.append(m)
-
-
-t = threading.Thread(target=msg_loop)
-t.start()
-
 @app.get('/')
 def home():
     print(f"Messages service. Getting messages. {MSG_STORAGE}")
@@ -41,6 +24,25 @@ def home():
 @app.post("/")
 def post_msg(msg: Message):
     return "Not implemented yet."
+
+
+def msg_loop():
+    msg_consumer = KafkaConsumer(KAFKA_MSG_TOPIC,
+                                 group_id='my-group0',
+                                 bootstrap_servers=KAFKA_URL,
+                                 auto_offset_reset='earliest',
+                                #  enable_auto_commit=True, 
+                                 api_version=(0,11,5)
+                                 )
+    for msg in msg_consumer:
+        m = msg.value.decode()
+        print(f"Message service: Got message: {m}")
+        MSG_STORAGE.append(m)
+        print(MSG_STORAGE)
+
+
+t = threading.Thread(target=msg_loop)
+t.start()
 
 
 if __name__ == "__main__":
