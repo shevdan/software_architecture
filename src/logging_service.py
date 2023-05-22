@@ -23,7 +23,7 @@ MSG_HASH_MAP = hz_instance.get_map(config["map_name"])
 
 @app.get('/')
 def get_logs():
-    print("Logging service. Getting logs")
+    print(f"Logging service. Getting logs.")
     return "; ".join(list(MSG_HASH_MAP.values().result()))
 
 

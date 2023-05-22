@@ -21,7 +21,6 @@ config = get_config(consul, KAFKA_CONFIG_KEY, DEFAULT_KAFKA_CONFIG)
 msg_producer = KafkaProducer(bootstrap_servers=config["url"], api_version=(0,11,5))
 
 def get_url(consul, key):
-    print("URLS", list(json.loads(consul.kv.get(key)[1]['Value'].decode('ascii')).values()))
     return choice(list(json.loads(consul.kv.get(key)[1]['Value'].decode('ascii')).values()))
 
 
@@ -31,7 +30,6 @@ def home():
     try:
         logging_url = get_url(consul, LOGGING)
         message_url = get_url(consul, MESSAGE)
-        print("urls:", logging_url, message_url )
         logging_response = requests.get(logging_url)
         messaging_response = requests.get(message_url)
     except Exception as e:

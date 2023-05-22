@@ -42,7 +42,6 @@ def msg_loop():
         m = msg.value.decode()
         print(f"MESSAGE: Got message: {m}")
         MSG_STORAGE.append(m)
-        print(MSG_STORAGE)
 
 
 t = threading.Thread(target=msg_loop)
