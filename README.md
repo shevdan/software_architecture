@@ -15,13 +15,17 @@ Make sure you have Kafka running
 
 ```kafka-server-start /usr/local/etc/kafka/server.properties```
 
+Make sure you have Consul running:
+
+```consul agent -dev```
+
 After this you can start services
 
-```python3 start_services.py --facade```
+```python3 start_services.py --facade --port 8081```
  
-```python3 start_services.py --message -n 0```
+```python3 start_services.py --message -n 0 --port 8083```
 
-```python3 start_services.py --message -n 1```
+```python3 start_services.py --message -n 1 --port 8084```
 
 Then instantiate 3 hazelcast nodes by typing in 3 distinct terminal windows:
 
@@ -29,11 +33,11 @@ Then instantiate 3 hazelcast nodes by typing in 3 distinct terminal windows:
 
 Next, you can start instances of logging service on different ports of local host, which will be linked to hazelcast cluster
 
-```python3 start_services.py --logging -n 0```
+```python3 start_services.py --logging -n 0 --port 8085```
 
-```python3 start_services.py --logging -n 1```
+```python3 start_services.py --logging -n 1 --port 8086```
 
-```python3 start_services.py --logging -n 2```
+```python3 start_services.py --logging -n 2 --port 8087```
 
 After that you can run client as follows. To create post request:
 

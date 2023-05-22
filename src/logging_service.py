@@ -4,6 +4,9 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import argparse
 import hazelcast
+from config import get_config
+from constants import HAZELCAST_MAP_KEY, DEFAULT_HAZELCAST_MAP_NAME
+from consul import Consul
 
 
 class Message(BaseModel):
@@ -13,8 +16,10 @@ class Message(BaseModel):
 
 app = FastAPI()
 
+consul = Consul()
+config = get_config(consul, HAZELCAST_MAP_KEY, DEFAULT_HAZELCAST_MAP_NAME)
 hz_instance = hazelcast.HazelcastClient()
-MSG_HASH_MAP = hz_instance.get_map("logging_map")
+MSG_HASH_MAP = hz_instance.get_map(config["map_name"])
 
 @app.get('/')
 def get_logs():

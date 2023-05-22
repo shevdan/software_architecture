@@ -1,8 +1,8 @@
 import requests
 import argparse
-from config import Config
+# from config import Config
 import json
-CONF = Config.urls_from_conf()
+# CONF = Config.urls_from_conf()
 
 
 if __name__ == "__main__":
@@ -20,7 +20,7 @@ if __name__ == "__main__":
         data = {
             "message": args.message
         }
-        requests.post(url = CONF.facade_url, data = json.dumps(data))
+        requests.post(url = f"http://127.0.0.1:8081", data = json.dumps(data))
     else:
-        r = requests.get(CONF.facade_url)
+        r = requests.get(f"http://127.0.0.1:8081")
         print(r.json())

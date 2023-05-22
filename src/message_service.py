@@ -1,11 +1,13 @@
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
-from constants import KAFKA_MSG_TOPIC, KAFKA_URL
+from config import get_config
+from constants import DEFAULT_KAFKA_CONFIG, KAFKA_CONFIG_KEY
 import argparse
 
 import threading
 from kafka import KafkaConsumer
+from consul import Consul
 
 class Message(BaseModel):
     message: str
@@ -14,23 +16,6 @@ class Message(BaseModel):
 app = FastAPI()
 
 MSG_STORAGE = []
-
-def msg_loop():
-    msg_consumer = KafkaConsumer(KAFKA_MSG_TOPIC,
-                                 group_id='my-group0',
-                                 bootstrap_servers=KAFKA_URL,
-                                 auto_offset_reset='earliest',
-                                 enable_auto_commit=True, 
-                                 api_version=(0,11,5)
-                                 )
-    for msg in msg_consumer:
-        m = msg.value.decode()
-        print(f"MESSAGE: Got message: {m}")
-        MSG_STORAGE.append(m)
-
-
-t = threading.Thread(target=msg_loop)
-t.start()
 
 @app.get('/')
 def home():
@@ -41,6 +26,27 @@ def home():
 @app.post("/")
 def post_msg(msg: Message):
     return "Not implemented yet."
+
+
+def msg_loop():
+    consul = Consul()
+    config = get_config(consul, KAFKA_CONFIG_KEY, DEFAULT_KAFKA_CONFIG)
+    msg_consumer = KafkaConsumer(config["topic"],
+                                 group_id='my-group0',
+                                 bootstrap_servers=config["url"],
+                                 auto_offset_reset='earliest',
+                                #  enable_auto_commit=True, 
+                                 api_version=(0,11,5)
+                                 )
+    for msg in msg_consumer:
+        m = msg.value.decode()
+        print(f"MESSAGE: Got message: {m}")
+        MSG_STORAGE.append(m)
+        print(MSG_STORAGE)
+
+
+t = threading.Thread(target=msg_loop)
+t.start()
 
 
 if __name__ == "__main__":

@@ -3,28 +3,37 @@ from fastapi import FastAPI, Request, Response, status
 import requests
 import uuid
 from pydantic import BaseModel
-from config import Config
 from random import choice
 import argparse
 import json
 from kafka import KafkaProducer
-from constants import KAFKA_MSG_TOPIC, KAFKA_URL
+from consul import Consul
+from constants import KAFKA_CONFIG_KEY, DEFAULT_KAFKA_CONFIG, LOGGING, MESSAGE
+from config import get_config
 
 class User(BaseModel):
     message: str
 
 app = FastAPI()
 
-CONF = Config.urls_from_conf()
-msg_producer = KafkaProducer(bootstrap_servers=KAFKA_URL, api_version=(0,11,5))
+consul = Consul()
+config = get_config(consul, KAFKA_CONFIG_KEY, DEFAULT_KAFKA_CONFIG)
+msg_producer = KafkaProducer(bootstrap_servers=config["url"], api_version=(0,11,5))
+
+def get_url(consul, key):
+    print("URLS", list(json.loads(consul.kv.get(key)[1]['Value'].decode('ascii')).values()))
+    return choice(list(json.loads(consul.kv.get(key)[1]['Value'].decode('ascii')).values()))
 
 
 @app.get('/')
 def home():
     print("Facade message. Getting messages")
     try:
-        logging_response = requests.get(choice(CONF.logging_url))
-        messaging_response = requests.get(choice(CONF.message_url))
+        logging_url = get_url(consul, LOGGING)
+        message_url = get_url(consul, MESSAGE)
+        print("urls:", logging_url, message_url )
+        logging_response = requests.get(logging_url)
+        messaging_response = requests.get(message_url)
     except Exception as e:
         return f"Error connecting to logging and/or message services. Error: {e}"
     if logging_response.status_code != 200:
@@ -39,13 +48,13 @@ async def post_msg(msg: Request):
     data = await msg.json()
     message = data.get("message")
     print(f"Facade service. Posting message: {message}")
-    logging_url = choice(CONF.logging_url)
+    logging_url = get_url(consul, LOGGING)
     data = {
         "message":  message,
         "uuid": str(uuid.uuid4())
         }
     try:
-        h = msg_producer.send(KAFKA_MSG_TOPIC, message.encode('utf-8'))
+        h = msg_producer.send(config["topic"], message.encode('utf-8'))
         metadata = h.get(timeout=10)
         print(f"Message metadata: {metadata.topic}; {metadata.partition}; {metadata.offset}")
         msg_producer.flush()
